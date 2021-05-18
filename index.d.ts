@@ -1,5 +1,5 @@
 declare const RNMockLocationDetector: {
-  checkMockLocationProvider: () => Promise<boolean>;
+  checkMockLocationProvider: () => Promise<string>;
 };
 
 export default RNMockLocationDetector;
