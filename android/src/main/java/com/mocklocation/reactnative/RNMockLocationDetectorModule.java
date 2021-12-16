@@ -1,6 +1,7 @@
 package com.mocklocation.reactnative;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -31,22 +32,29 @@ public class RNMockLocationDetectorModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void checkMockLocationProvider(final Promise promise) {
-        if (ActivityCompat.checkSelfPermission(getCurrentActivity(),
+        final Activity activity = getCurrentActivity();
+
+        if(activity == null){
+            promise.reject("00001", "CheckMockLocationProvider Activity is null");
+            return;
+        }
+
+        if (ActivityCompat.checkSelfPermission(activity,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(getCurrentActivity(),
+            ActivityCompat.checkSelfPermission(activity,
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             promise.resolve("PERMISSION_REJECTED");
         }
         FusedLocationProviderClient mFusedLocationClient;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getCurrentActivity());
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(getCurrentActivity(),
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(activity,
             new OnSuccessListener < Location > () {
                 @Override
                 public void onSuccess(Location location) {
                     if (location == null) {
                         promise.resolve("LOCATION_ERROR");
                     }
-                    else if (isLocationFromMockProvider(getCurrentActivity(), location)) {
+                    else if (isLocationFromMockProvider(activity, location)) {
                         promise.resolve("MOCK");
                     } else{
                         promise.resolve("DEVICE");
